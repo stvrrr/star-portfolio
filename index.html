@@ -12,7 +12,7 @@
         }
 
         body {
-            background-image: url('background.gif');
+            background-image: url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1920&q=80');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -145,6 +145,27 @@
             margin-top: 50px;
             color: #444;
             font-size: 13px;
+            position: relative;
+        }
+
+        .view-count {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            color: #888;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .view-count-icon {
+            width: 16px;
+            height: 16px;
+            background-color: #aaa;
+            border-radius: 3px;
+            background-size: cover;
+            background-position: center;
         }
 
         @media (max-width: 480px) {
@@ -167,31 +188,55 @@
     </audio>
 
     <script>
-        // Attempt to play music on page load
-        window.addEventListener('load', function() {
+        // View counter using persistent storage
+        window.addEventListener('load', async function() {
             const audio = document.getElementById('bgMusic');
-            audio.volume = 0.3; // Set volume to 30%
+            audio.volume = 0.3;
             
-            // Try to autoplay
             const playPromise = audio.play();
             
             if (playPromise !== undefined) {
                 playPromise.catch(function(error) {
-                    // Autoplay was prevented, play on first user interaction
                     console.log('Autoplay prevented, waiting for user interaction');
                     document.body.addEventListener('click', function() {
                         audio.play();
                     }, { once: true });
                 });
             }
+
+            // View counter logic
+            try {
+                let viewCount = 0;
+                
+                // Try to get existing view count
+                try {
+                    const result = await window.storage.get('view_count', true);
+                    viewCount = parseInt(result.value) || 0;
+                } catch (error) {
+                    // Key doesn't exist yet, start at 0
+                    viewCount = 0;
+                }
+                
+                // Increment view count
+                viewCount++;
+                
+                // Save updated count
+                await window.storage.set('view_count', viewCount.toString(), true);
+                
+                // Display the count
+                document.getElementById('viewCounter').textContent = viewCount;
+            } catch (error) {
+                console.error('View counter error:', error);
+                document.getElementById('viewCounter').textContent = '---';
+            }
         });
     </script>
-  <script src="ayo.js"> </script>
+    <script src="ayo.js"></script>
 
     <div class="container">
         <div class="profile-header">
-            <div class="avatar" style="background-image: url('avatar.bg');"></div>
-            <h1>stvrrr</h1>
+            <div class="avatar" style="background-image: url('https://via.placeholder.com/100/667eea/ffffff?text=B');"></div>
+            <h1>Berk</h1>
             <p class="bio">
                 <a href="#link1" class="bio-icon" style="background-image: url('https://via.placeholder.com/28/667eea/ffffff?text=1');" title="Link 1"></a>
                 <a href="#link2" class="bio-icon" style="background-image: url('https://via.placeholder.com/28/764ba2/ffffff?text=2');" title="Link 2"></a>
@@ -243,6 +288,10 @@
         </div>
 
         <div class="footer">
+            <div class="view-count">
+                <span class="view-count-icon">👁️</span>
+                <span id="viewCounter">0</span> views
+            </div>
             Made with ♥
         </div>
     </div>
