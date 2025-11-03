@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-image: url('background.gif');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 420px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            outline: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            padding: 40px 30px;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 600;
+            color: white;
+            background-size: cover;
+            background-position: center;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .bio {
+            color: #888;
+            font-size: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50px;
+            padding: 4px 8px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .bio-icon {
+            width: 24px;
+            height: 24px;
+            background-color: #ddd;
+            border-radius: 6px;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .bio-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .links {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .link-item {
+            background-color: rgba(30, 30, 30, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 8px;
+            padding: 16px 20px;
+            text-decoration: none;
+            color: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            font-size: 15px;
+        }
+
+        .link-item:hover {
+            background-color: #1a1a1a;
+            border-color: #333;
+            transform: translateY(-2px);
+        }
+
+        .link-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            background-color: #ccc;
+            border-radius: 4px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .link-content {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .link-arrow {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #444;
+            font-size: 13px;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 24px;
+            }
+            
+            .avatar {
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <audio id="bgMusic" loop>
+        <source src="your-music-file.mp3" type="audio/mpeg">
+        <source src="your-music-file.mp4" type="audio/mp4">
+    </audio>
+
+    <script>
+        // Attempt to play music on page load
+        window.addEventListener('load', function() {
+            const audio = document.getElementById('bgMusic');
+            audio.volume = 0.3; // Set volume to 30%
+            
+            // Try to autoplay
+            const playPromise = audio.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.catch(function(error) {
+                    // Autoplay was prevented, play on first user interaction
+                    console.log('Autoplay prevented, waiting for user interaction');
+                    document.body.addEventListener('click', function() {
+                        audio.play();
+                    }, { once: true });
+                });
+            }
+        });
+    </script>
+  <script src="ayo.js"> </script>
+
+    <div class="container">
+        <div class="profile-header">
+            <div class="avatar" style="background-image: url('avatar.bg');"></div>
+            <h1>stvrrr</h1>
+            <p class="bio">
+                <a href="#link1" class="bio-icon" style="background-image: url('https://via.placeholder.com/28/667eea/ffffff?text=1');" title="Link 1"></a>
+                <a href="#link2" class="bio-icon" style="background-image: url('https://via.placeholder.com/28/764ba2/ffffff?text=2');" title="Link 2"></a>
+                <a href="#link3" class="bio-icon" style="background-image: url('https://via.placeholder.com/28/f093fb/ffffff?text=3');" title="Link 3"></a>
+                <a href="#link4" class="bio-icon" style="background-image: url('https://via.placeholder.com/28/4facfe/ffffff?text=4');" title="Link 4"></a>
+            </p>
+        </div>
+
+        <div class="links">
+            <a href="#" class="link-item">
+                <div class="link-content">
+                    <div class="link-icon" style="background-image: url('https://via.placeholder.com/24/667eea/ffffff?text=W');"></div>
+                    <span>Website</span>
+                </div>
+                <span class="link-arrow">→</span>
+            </a>
+
+            <a href="#" class="link-item">
+                <div class="link-content">
+                    <div class="link-icon" style="background-image: url('https://via.placeholder.com/24/1DA1F2/ffffff?text=T');"></div>
+                    <span>Twitter</span>
+                </div>
+                <span class="link-arrow">→</span>
+            </a>
+
+            <a href="#" class="link-item">
+                <div class="link-content">
+                    <div class="link-icon" style="background-image: url('https://via.placeholder.com/24/0077B5/ffffff?text=L');"></div>
+                    <span>LinkedIn</span>
+                </div>
+                <span class="link-arrow">→</span>
+            </a>
+
+            <a href="#" class="link-item">
+                <div class="link-content">
+                    <div class="link-icon" style="background-image: url('https://via.placeholder.com/24/EA4335/ffffff?text=E');"></div>
+                    <span>Email</span>
+                </div>
+                <span class="link-arrow">→</span>
+            </a>
+
+            <a href="#" class="link-item">
+                <div class="link-content">
+                    <div class="link-icon" style="background-image: url('https://via.placeholder.com/24/333333/ffffff?text=G');"></div>
+                    <span>GitHub</span>
+                </div>
+                <span class="link-arrow">→</span>
+            </a>
+        </div>
+
+        <div class="footer">
+            Made with ♥
+        </div>
+    </div>
+</body>
+</html>
