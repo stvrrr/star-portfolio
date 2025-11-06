@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>star's portfolio</title>
+    <title>stvrrr - portfolio</title>
     <style>
         * {
             margin: 0;
@@ -12,10 +12,6 @@
         }
 
         body {
-            background-image: url('https://stvrrr.vercel.app/images/background.gif');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
             color: #e0e0e0;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             line-height: 1.6;
@@ -24,6 +20,18 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bg-image {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
         }
 
         .container {
@@ -34,6 +42,17 @@
             border-radius: 12px;
             padding: 40px 30px;
             background-color: rgba(255, 255, 255, 0.3);
+            transition: transform 0.05s ease-out;
+        }
+
+        body.bass-shake .container {
+            animation: bassShake 0.1s ease-in-out;
+        }
+
+        @keyframes bassShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
         .profile-header {
@@ -45,16 +64,14 @@
             width: 100px;
             height: 100px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            font-weight: 600;
-            color: white;
-            background-size: cover;
-            background-position: center;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         h1 {
@@ -83,10 +100,12 @@
         .bio-icon {
             width: 24px;
             height: 24px;
-            background-color: #ddd;
             border-radius: 6px;
             transition: transform 0.2s ease;
             cursor: pointer;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         .bio-icon:hover {
@@ -123,10 +142,10 @@
             width: 24px;
             height: 24px;
             margin-right: 12px;
-            background-color: #ccc;
             border-radius: 4px;
-            background-size: cover;
+            background-size: contain;
             background-position: center;
+            background-repeat: no-repeat;
         }
 
         .link-content {
@@ -162,10 +181,10 @@
         .view-count-icon {
             width: 16px;
             height: 16px;
-            background-color: #aaa;
             border-radius: 3px;
-            background-size: cover;
+            background-size: contain;
             background-position: center;
+            background-repeat: no-repeat;
         }
 
         @media (max-width: 480px) {
@@ -182,14 +201,16 @@
     </style>
 </head>
 <body>
+    <img src="https://stvrrr.vercel.app/images/background.png" alt="Background" class="bg-image">
+    
     <audio id="bgMusic" loop>
         <source src="your-music-file.mp3" type="audio/mpeg">
         <source src="your-music-file.mp4" type="audio/mp4">
     </audio>
 
     <script>
-        // View counter using persistent storage
-        window.addEventListener('load', async function() {
+        // Music player
+        window.addEventListener('load', function() {
             const audio = document.getElementById('bgMusic');
             audio.volume = 0.3;
             
@@ -203,80 +224,94 @@
                     }, { once: true });
                 });
             }
+        });
 
-            // View counter logic
+        // View counter using CountAPI
+        (async function() {
             const counterElement = document.getElementById('viewCounter');
             
-            // Check if storage API is available
-            if (typeof window.storage !== 'undefined') {
-                try {
-                    let viewCount = 0;
-                    
-                    // Try to get existing view count
-                    try {
-                        const result = await window.storage.get('view_count', true);
-                        if (result && result.value) {
-                            viewCount = parseInt(result.value) || 0;
-                        }
-                    } catch (error) {
-                        // Key doesn't exist yet, start at 0
-                        console.log('Starting new view count');
-                        viewCount = 0;
-                    }
-                    
-                    // Increment view count
-                    viewCount++;
-                    
-                    // Save updated count
-                    await window.storage.set('view_count', viewCount.toString(), true);
-                    
-                    // Display the count
-                    counterElement.textContent = viewCount;
-                } catch (error) {
-                    console.error('View counter error:', error);
-                    counterElement.textContent = '1';
+            try {
+                // Replace 'your-namespace' and 'your-key' with your own values
+                // Example: if your site is mysite.com, use namespace: 'mysite' and key: 'visits'
+                const namespace = 'stvrrr'; // Your site name
+                const key = 'page-views'; // Counter name
+                
+                // Fetch and increment the counter
+                const response = await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
+                
+                if (!response.ok) {
+                    throw new Error('CountAPI request failed');
                 }
-            } else {
-                // Fallback if storage not available
-                console.log('Storage API not available');
-                counterElement.textContent = '1';
+                
+                const data = await response.json();
+                console.log('View count updated:', data.value);
+                
+                // Display the count
+                counterElement.textContent = data.value;
+                
+            } catch (error) {
+                console.error('View counter failed:', error);
+                counterElement.textContent = '---';
+                
+                // Fallback: try to create the counter if it doesn't exist
+                try {
+                    const namespace = 'stvrrr';
+                    const key = 'page-views';
+                    const createResponse = await fetch(`https://api.countapi.xyz/create?namespace=${namespace}&key=${key}&value=1`);
+                    
+                    if (createResponse.ok) {
+                        const createData = await createResponse.json();
+                        counterElement.textContent = createData.value || 1;
+                    }
+                } catch (createError) {
+                    console.error('Failed to create counter:', createError);
+                }
             }
-        });
+        })();
     </script>
-    <script src="ayo.js"></script>
 
     <div class="container">
         <div class="profile-header">
-            <div class="avatar" style="background-image: url('https://stvrrr.vercel.app/images/avatar.jpg');"></div>
-            <h1>stvrrr</h1>
+            <div class="avatar">
+                <img src="https://stvrrr.vercel.app/images/avatar.png" alt="Avatar">
+            </div>
+            <h1>Berk</h1>
             <p class="bio">
-                <a href="#link1" class="bio-icon" style="background-image: url('https://via.placeholder.com/28/667eea/ffffff?text=1');" title="Link 1"></a>
-                <a href="#link2" class="bio-icon" style="background-image: url('https://via.placeholder.com/28/764ba2/ffffff?text=2');" title="Link 2"></a>
-                <a href="#link3" class="bio-icon" style="background-image: url('https://via.placeholder.com/28/f093fb/ffffff?text=3');" title="Link 3"></a>
-                <a href="#link4" class="bio-icon" style="background-image: url('https://via.placeholder.com/28/4facfe/ffffff?text=4');" title="Link 4"></a>
+                <a href="#link1" title="Link 1">
+                    <img src="https://stvrrr.vercel.app/images/icon1.png" alt="Icon 1" class="bio-icon">
+                </a>
+                <a href="#link2" title="Link 2">
+                    <img src="https://stvrrr.vercel.app/images/icon2.png" alt="Icon 2" class="bio-icon">
+                </a>
+                <a href="#link3" title="Link 3">
+                    <img src="https://stvrrr.vercel.app/images/icon3.png" alt="Icon 3" class="bio-icon">
+                </a>
+                <a href="#link4" title="Link 4">
+                    <img src="https://stvrrr.vercel.app/images/icon4.png" alt="Icon 4" class="bio-icon">
+                </a>
             </p>
         </div>
 
         <div class="links">
             <a href="#" class="link-item">
                 <div class="link-content">
-                    <div class="link-icon" style="background-image: url('https://stvrrr.vercel.app/images/discord.png');"></div>
-                    <span>Super Stars Discord</span>
+                    <img src="https://stvrrr.vercel.app/images/website.png" alt="Website" class="link-icon">
+                    <span>Website</span>
                 </div>
                 <span class="link-arrow">→</span>
             </a>
 
             <a href="#" class="link-item">
                 <div class="link-content">
-                    <div class="link-icon" style="background-image: url('https://stvrrr.vercel.app/images/discord.png');"></div>
-                    <span>VILE Clan Discord</span>
+                    <img src="https://stvrrr.vercel.app/images/twitter.png" alt="Twitter" class="link-icon">
+                    <span>Twitter</span>
                 </div>
                 <span class="link-arrow">→</span>
             </a>
 
             <a href="#" class="link-item">
                 <div class="link-content">
-                    <div class="link-icon" style="background-image: url('https://via.placeholder.com/24/0077B5/ffffff?text=L');"></div>
+                    <img src="https://stvrrr.vercel.app/images/linkedin.png" alt="LinkedIn" class="link-icon">
                     <span>LinkedIn</span>
                 </div>
                 <span class="link-arrow">→</span>
@@ -284,7 +319,7 @@
 
             <a href="#" class="link-item">
                 <div class="link-content">
-                    <div class="link-icon" style="background-image: url('https://via.placeholder.com/24/EA4335/ffffff?text=E');"></div>
+                    <img src="https://stvrrr.vercel.app/images/email.png" alt="Email" class="link-icon">
                     <span>Email</span>
                 </div>
                 <span class="link-arrow">→</span>
@@ -292,7 +327,7 @@
 
             <a href="#" class="link-item">
                 <div class="link-content">
-                    <div class="link-icon" style="background-image: url('https://via.placeholder.com/24/333333/ffffff?text=G');"></div>
+                    <img src="https://stvrrr.vercel.app/images/github.png" alt="GitHub" class="link-icon">
                     <span>GitHub</span>
                 </div>
                 <span class="link-arrow">→</span>
@@ -301,7 +336,7 @@
 
         <div class="footer">
             <div class="view-count">
-                <span class="view-count-icon"></span>
+                <img src="https://stvrrr.vercel.app/images/eye.png" alt="Views" class="view-count-icon">
                 <span id="viewCounter">0</span> views
             </div>
             Made with ♥
