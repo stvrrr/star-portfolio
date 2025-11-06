@@ -205,29 +205,41 @@
             }
 
             // View counter logic
-            try {
-                let viewCount = 0;
-                
-                // Try to get existing view count
+            const counterElement = document.getElementById('viewCounter');
+            
+            // Check if storage API is available
+            if (typeof window.storage !== 'undefined') {
                 try {
-                    const result = await window.storage.get('view_count', true);
-                    viewCount = parseInt(result.value) || 0;
+                    let viewCount = 0;
+                    
+                    // Try to get existing view count
+                    try {
+                        const result = await window.storage.get('view_count', true);
+                        if (result && result.value) {
+                            viewCount = parseInt(result.value) || 0;
+                        }
+                    } catch (error) {
+                        // Key doesn't exist yet, start at 0
+                        console.log('Starting new view count');
+                        viewCount = 0;
+                    }
+                    
+                    // Increment view count
+                    viewCount++;
+                    
+                    // Save updated count
+                    await window.storage.set('view_count', viewCount.toString(), true);
+                    
+                    // Display the count
+                    counterElement.textContent = viewCount;
                 } catch (error) {
-                    // Key doesn't exist yet, start at 0
-                    viewCount = 0;
+                    console.error('View counter error:', error);
+                    counterElement.textContent = '1';
                 }
-                
-                // Increment view count
-                viewCount++;
-                
-                // Save updated count
-                await window.storage.set('view_count', viewCount.toString(), true);
-                
-                // Display the count
-                document.getElementById('viewCounter').textContent = viewCount;
-            } catch (error) {
-                console.error('View counter error:', error);
-                document.getElementById('viewCounter').textContent = '---';
+            } else {
+                // Fallback if storage not available
+                console.log('Storage API not available');
+                counterElement.textContent = '1';
             }
         });
     </script>
@@ -248,16 +260,16 @@
         <div class="links">
             <a href="#" class="link-item">
                 <div class="link-content">
-                    <div class="link-icon" style="background-image: url('https://via.placeholder.com/24/667eea/ffffff?text=W');"></div>
-                    <span>Website</span>
+                    <div class="link-icon" style="background-image: url('https://stvrrr.vercel.app/images/discord.png');"></div>
+                    <span>Super Stars Discord</span>
                 </div>
                 <span class="link-arrow">→</span>
             </a>
 
             <a href="#" class="link-item">
                 <div class="link-content">
-                    <div class="link-icon" style="background-image: url('https://via.placeholder.com/24/1DA1F2/ffffff?text=T');"></div>
-                    <span>Twitter</span>
+                    <div class="link-icon" style="background-image: url('https://stvrrr.vercel.app/images/discord.png');"></div>
+                    <span>VILE Clan Discord</span>
                 </div>
                 <span class="link-arrow">→</span>
             </a>
