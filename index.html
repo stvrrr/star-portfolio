@@ -208,65 +208,117 @@
     </audio>
 
     <script>
-        // Music player
-        window.addEventListener('load', function() {
-            const audio = document.getElementById('bgMusic');
-            audio.volume = 0.3;
-            
-            const playPromise = audio.play();
-            
-            if (playPromise !== undefined) {
-                playPromise.catch(function(error) {
-                    console.log('Autoplay prevented, waiting for user interaction');
-                    document.body.addEventListener('click', function() {
-                        audio.play();
-                    }, { once: true });
-                });
-            }
-        });
+    // Music player with bass shake
+    let audioContext;
+    let analyser;
+    let dataArray;
+    let isPlaying = false;
 
-        // View counter using CountAPI
-        (async function() {
-            const counterElement = document.getElementById('viewCounter');
+    const audio = document.getElementById('bgMusic');
+    audio.volume = 0.3;
+
+    const setupAudioAnalysis = () => {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            const source = audioContext.createMediaElementSource(audio);
+            
+            source.connect(analyser);
+            analyser.connect(audioContext.destination);
+            
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            dataArray = new Uint8Array(bufferLength);
+            
+            // Start analyzing bass frequencies
+            analyzeBass();
+        }
+    };
+    
+    const analyzeBass = () => {
+        requestAnimationFrame(analyzeBass);
+        
+        if (!analyser || !isPlaying) return;
+        
+        analyser.getByteFrequencyData(dataArray);
+        
+        // Get bass frequencies (first 10% of the spectrum)
+        let bassSum = 0;
+        const bassRange = Math.floor(dataArray.length * 0.1);
+        
+        for (let i = 0; i < bassRange; i++) {
+            bassSum += dataArray[i];
+        }
+        
+        const bassAverage = bassSum / bassRange;
+        
+        // Shake when bass is strong (threshold: 180 out of 255)
+        if (bassAverage > 180) {
+            document.body.classList.add('bass-shake');
+            setTimeout(() => {
+                document.body.classList.remove('bass-shake');
+            }, 100);
+        }
+    };
+
+    const startMusic = () => {
+        if (!isPlaying) {
+            audio.play().then(() => {
+                isPlaying = true;
+                setupAudioAnalysis();
+            }).catch(err => {
+                console.log('Play failed:', err);
+            });
+        }
+    };
+
+    // Try autoplay on load
+    window.addEventListener('load', () => {
+        startMusic();
+    });
+
+    // Fallback: play on any user interaction
+    ['click', 'touchstart', 'keydown'].forEach(event => {
+        document.addEventListener(event, startMusic, { once: true });
+    });
+
+    // View counter using CountAPI
+    (async function() {
+        const counterElement = document.getElementById('viewCounter');
+        
+        try {
+            const namespace = 'stvrrr';
+            const key = 'page-views';
+            
+            const response = await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
+            
+            if (!response.ok) {
+                throw new Error('CountAPI request failed');
+            }
+            
+            const data = await response.json();
+            console.log('View count updated:', data.value);
+            
+            counterElement.textContent = data.value;
+            
+        } catch (error) {
+            console.error('View counter failed:', error);
+            counterElement.textContent = '---';
             
             try {
-                // Replace 'your-namespace' and 'your-key' with your own values
-                // Example: if your site is mysite.com, use namespace: 'mysite' and key: 'visits'
-                const namespace = 'stvrrr'; // Your site name
-                const key = 'page-views'; // Counter name
+                const namespace = 'stvrrr';
+                const key = 'page-views';
+                const createResponse = await fetch(`https://api.countapi.xyz/create?namespace=${namespace}&key=${key}&value=1`);
                 
-                // Fetch and increment the counter
-                const response = await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
-                
-                if (!response.ok) {
-                    throw new Error('CountAPI request failed');
+                if (createResponse.ok) {
+                    const createData = await createResponse.json();
+                    counterElement.textContent = createData.value || 1;
                 }
-                
-                const data = await response.json();
-                console.log('View count updated:', data.value);
-                
-                // Display the count
-                counterElement.textContent = data.value;
-                
-            } catch (error) {
-                console.error('View counter failed:', error);
-                counterElement.textContent = '---';
-                
-                // Fallback: try to create the counter if it doesn't exist
-                try {
-                    const namespace = 'stvrrr';
-                    const key = 'page-views';
-                    const createResponse = await fetch(`https://api.countapi.xyz/create?namespace=${namespace}&key=${key}&value=1`);
-                    
-                    if (createResponse.ok) {
-                        const createData = await createResponse.json();
-                        counterElement.textContent = createData.value || 1;
-                    }
-                } catch (createError) {
-                    console.error('Failed to create counter:', createError);
-                }
+            } catch (createError) {
+                console.error('Failed to create counter:', createError);
             }
-        })();
+        }
+    })();
     </script>
 
     <div class="container">
