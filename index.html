@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>stvrrr - portfolio</title>
+    <title>Profile</title>
     <style>
         * {
             margin: 0;
@@ -100,12 +100,8 @@
         .bio-icon {
             width: 24px;
             height: 24px;
-            border-radius: 6px;
             transition: transform 0.2s ease;
             cursor: pointer;
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
         }
 
         .bio-icon:hover {
@@ -142,10 +138,6 @@
             width: 24px;
             height: 24px;
             margin-right: 12px;
-            border-radius: 4px;
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
         }
 
         .link-content {
@@ -164,27 +156,68 @@
             margin-top: 50px;
             color: #444;
             font-size: 13px;
-            position: relative;
         }
 
-        .view-count {
-            position: absolute;
-            bottom: 0;
+        .enter-overlay {
+            position: fixed;
+            top: 0;
             left: 0;
-            color: #888;
-            font-size: 12px;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
             display: flex;
+            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            gap: 6px;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.8s ease;
+            cursor: pointer;
         }
 
-        .view-count-icon {
-            width: 16px;
-            height: 16px;
-            border-radius: 3px;
-            background-size: contain;
-            background-position: center;
-            background-repeat: no-repeat;
+        .enter-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .enter-text {
+            font-size: 32px;
+            font-weight: 700;
+            text-transform: lowercase;
+            letter-spacing: 0px;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, 
+                #ff0000 0%, 
+                #ff7f00 14%, 
+                #ffff00 28%, 
+                #00ff00 42%, 
+                #0000ff 57%, 
+                #4b0082 71%, 
+                #9400d3 85%, 
+                #ff0000 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: rainbow 3s linear infinite;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+
+        .enter-overlay:hover .enter-text {
+            transform: scale(1.05);
+        }
+
+        .enter-subtitle {
+            font-size: 18px;
+            color: rgba(128, 128, 128, 0.8);
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
 
         @media (max-width: 480px) {
@@ -195,148 +228,48 @@
             .avatar {
                 width: 80px;
                 height: 80px;
-                font-size: 32px;
+            }
+
+            .enter-text {
+                font-size: 24px;
+                letter-spacing: 0px;
+            }
+
+            .enter-subtitle {
+                font-size: 14px;
             }
         }
     </style>
 </head>
 <body>
+    <div class="enter-overlay" id="enterOverlay">
+        <div class="enter-text">enter...</div>
+    </div>
+
     <img src="https://stvrrr.vercel.app/images/background.gif" alt="Background" class="bg-image">
     
     <audio id="bgMusic" loop>
-        <source src="https://stvrrr.vercel.app/music1.mp3" type="audio/mpeg">
+        <source src="music1.mp3" type="audio/mpeg">
     </audio>
-
-    <script>
-    // Music player with bass shake
-    let audioContext;
-    let analyser;
-    let dataArray;
-    let isPlaying = false;
-
-    const audio = document.getElementById('bgMusic');
-    audio.volume = 0.3;
-
-    const setupAudioAnalysis = () => {
-        if (!audioContext) {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            analyser = audioContext.createAnalyser();
-            const source = audioContext.createMediaElementSource(audio);
-            
-            source.connect(analyser);
-            analyser.connect(audioContext.destination);
-            
-            analyser.fftSize = 256;
-            const bufferLength = analyser.frequencyBinCount;
-            dataArray = new Uint8Array(bufferLength);
-            
-            // Start analyzing bass frequencies
-            analyzeBass();
-        }
-    };
-    
-    const analyzeBass = () => {
-        requestAnimationFrame(analyzeBass);
-        
-        if (!analyser || !isPlaying) return;
-        
-        analyser.getByteFrequencyData(dataArray);
-        
-        // Get bass frequencies (first 10% of the spectrum)
-        let bassSum = 0;
-        const bassRange = Math.floor(dataArray.length * 0.1);
-        
-        for (let i = 0; i < bassRange; i++) {
-            bassSum += dataArray[i];
-        }
-        
-        const bassAverage = bassSum / bassRange;
-        
-        // Shake when bass is strong (threshold: 180 out of 255)
-        if (bassAverage > 180) {
-            document.body.classList.add('bass-shake');
-            setTimeout(() => {
-                document.body.classList.remove('bass-shake');
-            }, 100);
-        }
-    };
-
-    const startMusic = () => {
-        if (!isPlaying) {
-            audio.play().then(() => {
-                isPlaying = true;
-                setupAudioAnalysis();
-            }).catch(err => {
-                console.log('Play failed:', err);
-            });
-        }
-    };
-
-    // Try autoplay on load
-    window.addEventListener('load', () => {
-        startMusic();
-    });
-
-    // Fallback: play on any user interaction
-    ['click', 'touchstart', 'keydown'].forEach(event => {
-        document.addEventListener(event, startMusic, { once: true });
-    });
-
-    // View counter using CountAPI
-    (async function() {
-        const counterElement = document.getElementById('viewCounter');
-        
-        try {
-            const namespace = 'stvrrr';
-            const key = 'page-views';
-            
-            const response = await fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`);
-            
-            if (!response.ok) {
-                throw new Error('CountAPI request failed');
-            }
-            
-            const data = await response.json();
-            console.log('View count updated:', data.value);
-            
-            counterElement.textContent = data.value;
-            
-        } catch (error) {
-            console.error('View counter failed:', error);
-            counterElement.textContent = '---';
-            
-            try {
-                const namespace = 'stvrrr';
-                const key = 'page-views';
-                const createResponse = await fetch(`https://api.countapi.xyz/create?namespace=${namespace}&key=${key}&value=1`);
-                
-                if (createResponse.ok) {
-                    const createData = await createResponse.json();
-                    counterElement.textContent = createData.value || 1;
-                }
-            } catch (createError) {
-                console.error('Failed to create counter:', createError);
-            }
-        }
-    })();
-    </script>
-    <script src="ayo.js"></script>
 
     <div class="container">
         <div class="profile-header">
             <div class="avatar">
                 <img src="https://stvrrr.vercel.app/images/avatar.jpg" alt="Avatar">
             </div>
-            <h1>stvrrr.</h1>
+            <h1>Berk</h1>
             <p class="bio">
-                <a href="https://discord.gg/qcTCBtGG" title="Link 1">
-                    <img src="https://stvrrr.vercel.app/images/discord.png" alt="icon 1" class="bio-icon">
+                <a href="#link1" title="Link 1">
+                    <img src="https://stvrrr.vercel.app/images/icon1.png" alt="Icon 1" class="bio-icon">
                 </a>
                 <a href="#link2" title="Link 2">
-                    <img src="https://stvrrr.vercel.app/images/youtube.png" alt="icon 2" class="bio-icon">
+                    <img src="https://stvrrr.vercel.app/images/icon2.png" alt="Icon 2" class="bio-icon">
                 </a>
-                <a href="#link2" title="Link 2">
-                    <img src="https://stvrrr.vercel.app/images/roblox.png" alt="icon 2" class="bio-icon">
+                <a href="#link3" title="Link 3">
+                    <img src="https://stvrrr.vercel.app/images/icon3.png" alt="Icon 3" class="bio-icon">
+                </a>
+                <a href="#link4" title="Link 4">
+                    <img src="https://stvrrr.vercel.app/images/icon4.png" alt="Icon 4" class="bio-icon">
                 </a>
             </p>
         </div>
@@ -344,32 +277,32 @@
         <div class="links">
             <a href="#" class="link-item">
                 <div class="link-content">
-                    <img src="https://stvrrr.vercel.app/images/discord.png" alt="Website" class="link-icon">
-                    <span>Super Stars Discord</span>
+                    <img src="https://stvrrr.vercel.app/images/website.png" alt="Website" class="link-icon">
+                    <span>Website</span>
                 </div>
                 <span class="link-arrow">→</span>
             </a>
 
             <a href="#" class="link-item">
                 <div class="link-content">
-                    <img src="https://stvrrr.vercel.app/images/discord.png" alt="Twitter" class="link-icon">
-                    <span>VILE Clan Discord</span>
+                    <img src="https://stvrrr.vercel.app/images/twitter.png" alt="Twitter" class="link-icon">
+                    <span>Twitter</span>
                 </div>
                 <span class="link-arrow">→</span>
             </a>
 
             <a href="#" class="link-item">
                 <div class="link-content">
-                    <img src="https://stvrrr.vercel.app/images/tiktok.png" alt="LinkedIn" class="link-icon">
-                    <span>My Tiktok</span>
+                    <img src="https://stvrrr.vercel.app/images/linkedin.png" alt="LinkedIn" class="link-icon">
+                    <span>LinkedIn</span>
                 </div>
                 <span class="link-arrow">→</span>
             </a>
 
             <a href="#" class="link-item">
                 <div class="link-content">
-                    <img src="https://stvrrr.vercel.app/images/tiktok.png" alt="Email" class="link-icon">
-                    <span>VILE Clan Tiktok</span>
+                    <img src="https://stvrrr.vercel.app/images/email.png" alt="Email" class="link-icon">
+                    <span>Email</span>
                 </div>
                 <span class="link-arrow">→</span>
             </a>
@@ -384,12 +317,81 @@
         </div>
 
         <div class="footer">
-            <div class="view-count">
-                <img src="https://stvrrr.vercel.app/images/views.png" alt="Views" class="view-count-icon">
-                <span id="viewCounter">0</span> views
-            </div>
             Made with ♥
         </div>
     </div>
+
+    <script>
+        // Enter overlay functionality
+        const enterOverlay = document.getElementById('enterOverlay');
+        const audio = document.getElementById('bgMusic');
+        
+        let audioContext;
+        let analyser;
+        let dataArray;
+        let isPlaying = false;
+
+        audio.volume = 0.3;
+
+        const setupAudioAnalysis = () => {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                const source = audioContext.createMediaElementSource(audio);
+                
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+                
+                analyser.fftSize = 256;
+                const bufferLength = analyser.frequencyBinCount;
+                dataArray = new Uint8Array(bufferLength);
+                
+                analyzeBass();
+            }
+        };
+        
+        const analyzeBass = () => {
+            requestAnimationFrame(analyzeBass);
+            
+            if (!analyser || !isPlaying) return;
+            
+            analyser.getByteFrequencyData(dataArray);
+            
+            let bassSum = 0;
+            const bassRange = Math.floor(dataArray.length * 0.1);
+            
+            for (let i = 0; i < bassRange; i++) {
+                bassSum += dataArray[i];
+            }
+            
+            const bassAverage = bassSum / bassRange;
+            
+            if (bassAverage > 180) {
+                document.body.classList.add('bass-shake');
+                setTimeout(() => {
+                    document.body.classList.remove('bass-shake');
+                }, 100);
+            }
+        };
+
+        // Click anywhere on overlay to enter
+        enterOverlay.addEventListener('click', () => {
+            // Fade out overlay
+            enterOverlay.classList.add('fade-out');
+            
+            // Start music
+            audio.play().then(() => {
+                isPlaying = true;
+                setupAudioAnalysis();
+            }).catch(err => {
+                console.log('Play failed:', err);
+            });
+            
+            // Remove overlay after fade
+            setTimeout(() => {
+                enterOverlay.style.display = 'none';
+            }, 800);
+        });
+    </script>
 </body>
 </html>
